@@ -2,13 +2,13 @@
 ML lib for python games.
 
 Description:
--
+- This library is supposed to be an easy way to blah blah to lazy
 -
 -
 -
 
 
-Contributor:
+Contributor: 
 - If you wish to contribute dm me on discord: ( id = neuralnetwork. )
 - The naming convention is snake case for vairbles (snake_case) and Upper snake case for functions and classes (Upper_Snake_Case)
 - Please try not to deviate from the naming convetion
