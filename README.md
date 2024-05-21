@@ -7,7 +7,8 @@ Description:
 -
 -
 
-Contributors:
+
+Contributor:
 - If you wish to contribute dm me on discord: ( id = neuralnetwork. )
 - The naming convention is snake case for vairbles (snake_case) and Upper snake case for functions and classes (Upper_Snake_Case)
 - Please try not to deviate from the naming convetion
