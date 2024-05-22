@@ -56,11 +56,11 @@ class Trainer:
 
             # agent[1] would be the nn of the current looped over agent
             # nn_info[3] is the activation function used to get the outputs
-            print(self.nn_info[3])
+
             nn_outputs = agent[1].run(nn_inputs, self.nn_info[3])
 
             # convert nn outputs to the agent inputs
-            agent_input = output_input_converter(agent[0], nn_outputs)
+            agent_input = output_input_converter(nn_outputs)
 
             # run the agent using the inputs
-            run_func(agent_input)
+            run_func(agent[0], agent_input)
