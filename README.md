@@ -7,6 +7,8 @@ Description:
 - The user's program must have the following items in their game/program to garantee the sucsess of the AI's training
   - Controls: There needs to be some way for the AI to control a Agent (ai player) in your game using numerical or digital inputs
     - Ex: Inputs {w, a, s, d} in type boolean. Key Up = False, Key Down = True
+  - AI Outputs -> Game Inputs: There needs to be a function that converts outputs produced by AI's Neural Network into inputs to the Agent's input to the controls
+    - Ex: Network output = [0.23, -0.9, 0.49. -0.3] -> if output < 0: False // else: True -> Agent input = [True, False, True, False]
   - Goal/Reward: There needs a way for the AI to recive rewards for doing an action that would lead it to its goal, this then will be compared across other Agents to see how well the Ai proformed
     - Ex: checkpoints around a race track leading to the finish line. Each checkpoint gives the agent a reward
   - Inputs/Vision: There needs to some type of information given to the AI about its envoroment that would allow it to reach its goal
