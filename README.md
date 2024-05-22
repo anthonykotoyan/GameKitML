@@ -1,11 +1,18 @@
 # GameKitML
-ML lib for python games.
+Machine Learning / Artifical Intelegance library for python games.
 
 Description:
-- This library is supposed to be an easy way to blah blah to lazy
--
--
--
+- This library will allow users to train an AI agent to play their game
+- The library will provide many items such as a Neural Network, Agent/Population Manager, and much more
+- The user's program must have the following items in their game/program to garantee the sucsess of the AI's training
+  - Controls: There needs to be some way for the AI to control a Agent (ai player) in your game using numerical or digital inputs
+    - Ex: Inputs {w, a, s, d} in type boolean. Key Up = False, Key Down = True
+  - Goal/Reward: There needs a way for the AI to recive rewards for doing an action that would lead it to its goal, this then will be compared across other Agents to see how well the Ai proformed
+    - Ex: checkpoints around a race track leading to the finish line. Each checkpoint gives the agent a reward
+  - Inputs/Vision: There needs to some type of information given to the AI about its envoroment that would allow it to reach its goal
+    - Ex: The distances of line rays going from the AI Agent to the walls of the eviroment (agent will be able to tell how far/close he is to the walls around him)
+- The code for the Agent should idealy be inside of a class in order for the Library to be more compatatble with your code
+
 
 
 Contributor: 
