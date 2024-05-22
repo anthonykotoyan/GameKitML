@@ -1,3 +1,6 @@
+from GameKitML.genmanager import Trainer
+
+
 import math
 import random
 import time
@@ -14,22 +17,6 @@ trainMode = False
 randomStart = True
 
 carImage = pygame.image.load('car.png').convert()
-savedNN = [[8, 4, 3, 5], [
-    [0.1770274244925391, 0.04113310274579973, 0.44097545224483714, -0.4459827094629376, 0.7721571417301989, -1.0,
-     0.7369841399936912, -1.0, 0.5032923710364658, 0.009286683683420005, 0.7351775301861736, -0.6450603279631161,
-     -0.17104180537815467, 0.4962852310365572, -0.21407992057429318, -0.4005692994626197, -0.6616928497627195,
-     -0.37595249983734635, -1.0, 0.6874600654953775, -0.9348009582862379, -0.27118980928592207, 1.0, 0.4498051837263501,
-     0.010268685802201138, 0.7190068174448234, -0.3039121240893375, 0.8733255411098331, -0.19046161794925975,
-     -0.056939084932128015, -0.17329136765132014, -0.43916631075431906],
-    [0.5094196449801702, 0.02992811337338691, -0.25949844254358717, -0.7065141913345698, -0.5927007717793507,
-     -0.2580820493944287, -0.34608037598829433, 0.1854095580204159, 0.385209481002239, 0.6992748461084206,
-     0.7387093801308006, -0.6054773703288485],
-    [0.19003692381439974, -0.8266698144419822, 0.2972847151381608, -0.49968839815007265, 0.9796480035479527,
-     0.15300035659825897, 0.10436106842290854, 1.0, -1.0, -0.30131758259168273, -0.9299834356139876,
-     -0.3845260653284183, -1.0, -0.05541405746609224, 0.16078190969427783]],
-           [[0.20064516398285998, -0.6045637292219196, 0.5340765135304271, -0.3908762000052075],
-            [-0.5754033334753901, -0.3747035056891201, 0.9044013651756369],
-            [1.0, -0.6923014535967948, 0.6965681638511813, -0.4154152298437719, -0.4666639192993354]]]
 
 track = [[(98, 146), (112, 140), (170, 131), (240, 114), (308, 100), (362, 87), (420, 88), (481, 122), (513, 163),
           (571, 190), (650, 209), (701, 215), (753, 218), (814, 201), (899, 170), (979, 134), (1123, 121), (1166, 116),
@@ -161,7 +148,7 @@ class Agent:
                            (self.pos.x + self.size * Agent.boxSize, self.pos.y + self.size * Agent.boxSize),
                            (self.pos.x - self.size * Agent.boxSize, self.pos.y + self.size * Agent.boxSize)]
         self.angles = [-90, -37.5, -15, 0, 15, 37.5, 90]
-        self.vision = []
+        self.vision = self.Vision()[0]
         self.fitness = 0
         self.nextCP = 0
         self.runAgent = True
@@ -365,27 +352,34 @@ class Agent:
         pygame.draw.circle(screen, inputColor[3], pygame.Vector2(40, 25), 5)
         pygame.draw.rect(screen, inputColor[4], (5, 35, 40, 10))
 
+    @staticmethod
+    def OutputToInput(output_list):
+        return [output > 0 for output in output_list]
 
 
 
-    def UpdateAgent(self, inputs):
-        self.ApplyVelocity()
-        self.ApplyDirection()
-        self.Controls(inputs)
-        self.TrackCheckpoints(True)
-        self.TrackCollisions()
-        self.BorderCollisions()
+def UpdateAgent(Agent, inputs):
+    Agent.ApplyVelocity()
+    Agent.ApplyDirection()
+    Agent.Controls(inputs)
+    Agent.TrackCheckpoints(True)
+    Agent.TrackCollisions()
+    Agent.BorderCollisions()
 
-        self.DriftTrail(10 * self.size, 5 * self.size)
-        self.DrawAngle(50, False)
-        self.DrawCar()
-
-
+    Agent.DriftTrail(10 * Agent.size, 5 * Agent.size)
+    Agent.DrawAngle(50, False)
+    Agent.DrawCar()
 
 
 
+trainer = Trainer(Agent)
+trainer.Set_NN_Info(layers, 0.1, 0.2, "Tanh")
+trainer.Initialize_Agents(10)
 
-agent1 = Agent()
+
+
+
+
 wait = False
 while running:
     for event in pygame.event.get():
@@ -395,7 +389,7 @@ while running:
     screen.fill([120, 120, 110])
     keys = [pygame.key.get_pressed()[pygame.K_w], pygame.key.get_pressed()[pygame.K_s], pygame.key.get_pressed()[pygame.K_d], pygame.key.get_pressed()[pygame.K_a], pygame.key.get_pressed()[pygame.K_SPACE]]
     DrawTrack(track, False)
-    agent1.UpdateAgent(keys)
+    trainer.Run_Agents(UpdateAgent, Agent.OutputToInput, "vision")
     pygame.display.flip()
 
 pygame.quit()
