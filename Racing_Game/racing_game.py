@@ -149,6 +149,7 @@ class Agent:
                            (self.pos.x - self.size * Agent.boxSize, self.pos.y + self.size * Agent.boxSize)]
         self.angles = [-90, -37.5, -15, 0, 15, 37.5, 90]
         self.vision = self.Vision()[0]
+        self.nn_inputs = self.vision + [self.speed]
         self.fitness = 0
         self.nextCP = 0
         self.runAgent = True
@@ -389,7 +390,7 @@ while running:
     screen.fill([120, 120, 110])
     keys = [pygame.key.get_pressed()[pygame.K_w], pygame.key.get_pressed()[pygame.K_s], pygame.key.get_pressed()[pygame.K_d], pygame.key.get_pressed()[pygame.K_a], pygame.key.get_pressed()[pygame.K_SPACE]]
     DrawTrack(track, False)
-    trainer.Run_Agents(UpdateAgent, Agent.OutputToInput, "vision")
+    trainer.Run_Agents(UpdateAgent, Agent.OutputToInput, "nn_inputs")
     pygame.display.flip()
 
 pygame.quit()
