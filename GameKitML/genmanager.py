@@ -53,7 +53,7 @@ class Trainer:
             agent_nn = self.Initialize_NN()
             self.agents.append([agent_object, agent_nn])
 
-   # runs all the agents using the nn_info and the run_info
+    # runs all the agents using the nn_info and the run_info
     def Run_Agents(self):
         for agent in self.agents:
             # this finds the variable name input_variable_name inside the Agent class and uses that as nn input
