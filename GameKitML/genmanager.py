@@ -9,6 +9,7 @@ class Trainer:
         self.Agent = Agent
         self.agents = []
         self.nn_info = None
+        self.run_info = None
 
     # nn_Info creates the params/info for the nn class
     # layer is a list describing the size of the nn
@@ -18,6 +19,12 @@ class Trainer:
     def Set_NN_Info(self, layers, mutation_rate, mutation_change, activation_name, start_nn=None):
         activation = getattr(nn(layers), activation_name)
         self.nn_info = [layers, mutation_rate, mutation_change, activation, start_nn]
+
+    # output_input_converter is a function that the user makes that converts nn output to player input
+    # run_func is the code that moves the agent in the game
+    # input_variable_name is the name of the variable that contains what the nn would see
+    def Set_Run_Info(self, run_func, output_input_converter, input_variable_name):
+        self.run_info = [run_func, output_input_converter, input_variable_name]
 
     # There is a class called NeuralNetwork which we imported as "nn"
     # The nn class contains the code to run and store the neural network for an individual Agent
@@ -49,10 +56,10 @@ class Trainer:
     # output_input_converter is a function that the user makes that converts nn output to player input
     # run_func is the code that moves the agent in the game
     # input_variable_name is the name of the variable that contains what the nn would see
-    def Run_Agents(self, run_func, output_input_converter, input_variable_name):
+    def Run_Agents(self):
         for agent in self.agents:
             # this finds the variable name input_variable_name inside the Agent class and uses that as nn input
-            nn_inputs = getattr(agent[0], input_variable_name, None)
+            nn_inputs = getattr(agent[0], self.run_info[2], None)
 
             # agent[1] would be the nn of the current looped over agent
             # nn_info[3] is the activation function used to get the outputs
@@ -60,7 +67,7 @@ class Trainer:
             nn_outputs = agent[1].run(nn_inputs, self.nn_info[3])
 
             # convert nn outputs to the agent inputs
-            agent_input = output_input_converter(nn_outputs)
+            agent_input = self.run_info[1](nn_outputs)
 
             # run the agent using the inputs
-            run_func(agent[0], agent_input)
+            self.run_info[0](agent[0], agent_input)
