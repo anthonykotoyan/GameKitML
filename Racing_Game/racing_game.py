@@ -358,23 +358,24 @@ class Agent:
         return [output > 0 for output in output_list]
 
 
+    @staticmethod
+    def UpdateAgent(Agent, inputs):
+        Agent.ApplyVelocity()
+        Agent.ApplyDirection()
+        Agent.Controls(inputs)
+        Agent.TrackCheckpoints(True)
+        Agent.TrackCollisions()
+        Agent.BorderCollisions()
 
-def UpdateAgent(Agent, inputs):
-    Agent.ApplyVelocity()
-    Agent.ApplyDirection()
-    Agent.Controls(inputs)
-    Agent.TrackCheckpoints(True)
-    Agent.TrackCollisions()
-    Agent.BorderCollisions()
-
-    Agent.DriftTrail(10 * Agent.size, 5 * Agent.size)
-    Agent.DrawAngle(50, False)
-    Agent.DrawCar()
+        Agent.DriftTrail(10 * Agent.size, 5 * Agent.size)
+        Agent.DrawAngle(50, False)
+        Agent.DrawCar()
 
 
 
 trainer = Trainer(Agent)
 trainer.Set_NN_Info(layers, 0.1, 0.2, "Tanh")
+trainer.Set_Run_Info(Agent.UpdateAgent, Agent.OutputToInput, "nn_inputs")
 trainer.Initialize_Agents(10)
 
 
@@ -390,7 +391,7 @@ while running:
     screen.fill([120, 120, 110])
     keys = [pygame.key.get_pressed()[pygame.K_w], pygame.key.get_pressed()[pygame.K_s], pygame.key.get_pressed()[pygame.K_d], pygame.key.get_pressed()[pygame.K_a], pygame.key.get_pressed()[pygame.K_SPACE]]
     DrawTrack(track, False)
-    trainer.Run_Agents(UpdateAgent, Agent.OutputToInput, "nn_inputs")
+    trainer.Run_Agents()
     pygame.display.flip()
 
 pygame.quit()
