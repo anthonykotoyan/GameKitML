@@ -53,9 +53,7 @@ class Trainer:
             agent_nn = self.Initialize_NN()
             self.agents.append([agent_object, agent_nn])
 
-    # output_input_converter is a function that the user makes that converts nn output to player input
-    # run_func is the code that moves the agent in the game
-    # input_variable_name is the name of the variable that contains what the nn would see
+   # runs all the agents using the nn_info and the run_info
     def Run_Agents(self):
         for agent in self.agents:
             # this finds the variable name input_variable_name inside the Agent class and uses that as nn input
