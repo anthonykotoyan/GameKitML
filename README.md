@@ -13,6 +13,10 @@ Description:
     - Ex: checkpoints around a race track leading to the finish line. Each checkpoint gives the agent a reward
   - Inputs/Vision: There needs to some type of information given to the AI about its envoroment that would allow it to reach its goal
     - Ex: The distances of line rays going from the AI Agent to the walls of the eviroment (agent will be able to tell how far/close he is to the walls around him)
+  - Agent Reset: When the a traning generation ends, there should be a function to reset the agent so the next generation can start
+    - Ex: a function that when called, resets the agent's velocity, position, and direction
+  - Agent Death: There needs to be a way for the library to know when an Agent dies, the user needs to decide when the agent dies (like when a car hits a track wall)
+    - Ex: a boolean variable called AgentDeath for every agent, It is assigned to True if the agent died and is turned back to False when the Agent is reset
 - The code for the Agent should idealy be inside of a class in order for the Library to be more compatatble with your code
 
 
