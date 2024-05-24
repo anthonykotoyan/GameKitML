@@ -1,9 +1,8 @@
 from GameKitML.genmanager import Trainer
 
-
 import math
 import random
-import time
+
 import pygame
 
 pygame.init()
@@ -123,6 +122,7 @@ normalSlip = .3
 handBrakeSlip = normalSlip * 1.5
 errorCorrectionStrength = 15
 
+
 class Agent:
     boxSize = 2
     allAgents = []
@@ -150,9 +150,9 @@ class Agent:
         self.angles = [-90, -37.5, -15, 0, 15, 37.5, 90]
         self.vision = self.Vision()[0]
         self.nn_inputs = self.vision + [self.speed]
-        self.fitness = 0
+        self.score = 0
         self.nextCP = 0
-        self.runAgent = True
+        self.isDead = False
         Agent.allAgents.append(self)
 
     def Vision(self):
@@ -238,21 +238,19 @@ class Agent:
         self.pos.x += self.vel.x
         self.pos.y += self.vel.y
 
+    @staticmethod
     def ResetAgent(self):
         sa = random.uniform(-Agent.startAngle, Agent.startAngle)
         self.dir = sa
         self.angle = sa
         self.speed = 0
-        self.fitness = 0
+        self.score = 0
         self.nextCP = 0
-        self.runAgent = True
+        self.isDead = False
         self.pos = pygame.Vector2(track[2][0], track[2][1])
 
     def AgentDeath(self):
-        if trainMode:
-            self.runAgent = False
-        else:
-            self.ResetAgent()
+        self.isDead = True
 
     def TrackCollisions(self):
         for walls in range(2):
@@ -260,7 +258,7 @@ class Agent:
 
                 coll = BoxCollision(self.carCorners, (track[walls][wall], track[walls][wall + 1]))
                 if coll:
-                    self.fitness -= 1
+                    self.score -= 1
                     self.AgentDeath()
 
     def TrackCheckpoints(self, draw):
@@ -268,7 +266,7 @@ class Agent:
         if draw:
             pygame.draw.line(screen, "green", track[3][self.nextCP][0], track[3][self.nextCP][1], 1)
         if coll:
-            self.fitness += 1
+            self.score += 1
             if self.nextCP == len(track[3]) - 1:
                 self.nextCP = 0
             else:
@@ -343,7 +341,6 @@ class Agent:
         # self.turnSpeed = -b * (baseTSValue + abs(self.speed)) * (
         #         baseTSValue - maxSpeed + abs(self.speed)) + ShiftUpTS
 
-
     @staticmethod
     def DrawInputs(inputs):
         inputColor = ["green" if input else "red" for input in inputs]
@@ -357,30 +354,25 @@ class Agent:
     def OutputToInput(output_list):
         return [output > 0 for output in output_list]
 
-
     @staticmethod
-    def UpdateAgent(Agent, inputs):
-        Agent.ApplyVelocity()
-        Agent.ApplyDirection()
-        Agent.Controls(inputs)
-        Agent.TrackCheckpoints(True)
-        Agent.TrackCollisions()
-        Agent.BorderCollisions()
+    def UpdateAgent(self, inputs):
+        self.ApplyVelocity()
+        self.ApplyDirection()
+        self.Controls(inputs)
+        self.TrackCheckpoints(True)
+        self.TrackCollisions()
+        self.BorderCollisions()
 
-        Agent.DriftTrail(10 * Agent.size, 5 * Agent.size)
-        Agent.DrawAngle(50, False)
-        Agent.DrawCar()
-
+        self.DriftTrail(10 * self.size, 5 * self.size)
+        self.DrawAngle(50, False)
+        self.DrawCar()
 
 
 trainer = Trainer(Agent)
 trainer.Set_NN_Info(layers, 0.1, 0.2, "Tanh")
 trainer.Set_Run_Info(Agent.UpdateAgent, Agent.OutputToInput, "nn_inputs")
+trainer.Set_Gen_Info(5, "isDead", Agent.ResetAgent,"score")
 trainer.Initialize_Agents(10)
-
-
-
-
 
 wait = False
 while running:
@@ -389,9 +381,11 @@ while running:
             running = False
     dt = clock.tick(60) / 1000
     screen.fill([120, 120, 110])
-    keys = [pygame.key.get_pressed()[pygame.K_w], pygame.key.get_pressed()[pygame.K_s], pygame.key.get_pressed()[pygame.K_d], pygame.key.get_pressed()[pygame.K_a], pygame.key.get_pressed()[pygame.K_SPACE]]
+    keys = [pygame.key.get_pressed()[pygame.K_w], pygame.key.get_pressed()[pygame.K_s],
+            pygame.key.get_pressed()[pygame.K_d], pygame.key.get_pressed()[pygame.K_a],
+            pygame.key.get_pressed()[pygame.K_SPACE]]
     DrawTrack(track, False)
-    trainer.Run_Agents()
+    trainer.Run_Gen()
     pygame.display.flip()
 
 pygame.quit()
