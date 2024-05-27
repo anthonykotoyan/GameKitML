@@ -21,7 +21,9 @@ class Trainer:
         self.start_time = time.time()
         self.gen_time = None
 
-
+        # top agent
+        self.best_nn = None
+        self.all_scores = []
 
     # nn_Info creates the params/info for the nn class
     # layer is a list describing the size of the nn
@@ -50,15 +52,19 @@ class Trainer:
     # the new initialized nn is returned to be assigned to the Agents
     def Initialize_NN(self):
         # self.nn_info[0] is the layer list
-        NN = nn(self.nn_info[0])
 
         # self.nn_info[4] is the starting nn, if None that means start from random
         if self.nn_info[4] is None:
-            NN.randomize()
-        else:
+            NN = nn(self.nn_info[0])
+            NN.values(NN.randomize())
 
-            NN = NN.mutate(self.nn_info[4], self.nn_info[1],
-                           self.nn_info[2])  # nn_info 1, 2 are mutation_rate, mutation_change
+
+
+        else:
+            NN = nn.copyNN(self.nn_info[4])
+            # nn_info 1, 2 are mutation_rate, mutation_change
+            NN.values(NN.mutate(self.nn_info[1], self.nn_info[2]))
+
         return NN
 
     # loops through pop_size which is the number of Agents in the training
@@ -103,12 +109,19 @@ class Trainer:
 
     # loop through all the agents and reset them using the reset_agent func the user provided
     def Reset_Gen(self):
-        print("hi")
-        for agent in self.agents:
-            # gen_info[1] is the reset_agent func the user provided
-            self.gen_info[1](agent[0])
 
-            # not added yet but here we will figure out the agent with the highest score and mutate his network and shit
+        for agent in self.agents:
             # self.gen_info[2] is the name of the agent_death variable the user provided
             score = getattr(agent[0], self.gen_info[2], None)
-            
+            if self.all_scores:
+                if score > max(self.all_scores):
+                    self.best_nn = [agent[1].layers, agent[1].weights, agent[1].biases]
+            else:
+                self.best_nn = [agent[1].layers, agent[1].weights, agent[1].biases]
+            self.all_scores.append(score)
+
+            # gen_info[1] is the reset_agent func the user provided
+            self.gen_info[1](agent[0])
+        for agent in self.agents:
+            agent[1] = nn.copyNN(self.best_nn)
+            agent[1].values(agent[1].mutate(self.nn_info[1], self.nn_info[2]))
