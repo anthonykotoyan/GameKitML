@@ -3,13 +3,6 @@ import math
 import copy
 
 
-def sign(x):
-    if x != 0:
-        return abs(x) / x
-    else:
-        return 0
-
-
 class NeuralNetwork:
     def __init__(self, layers):
         # Initialize the neural network with given layers
@@ -19,15 +12,15 @@ class NeuralNetwork:
 
     def randomize(self):
         # Randomly initialize weights and biases for the neural network
-        weights = []
-        biases = []
+        wa = []
+        ba = []
         for layer in range(len(self.layers) - 1):
             # For each layer pair, create weights matrix
             weightsInLayer = []
             for weight in range(self.layers[layer] * self.layers[layer + 1]):
                 # Generate a random weight for each connection
                 weightsInLayer.append(random.uniform(-1, 1))
-            weights.append(weightsInLayer)
+            wa.append(weightsInLayer)
 
             # Generate biases only for hidden layers (not the output layer)
             biasesInLayer = []
@@ -35,15 +28,13 @@ class NeuralNetwork:
                 for bias in range(self.layers[layer + 1]):
                     # Randomly assign biases between -1 and 1
                     biasesInLayer.append(random.uniform(-1, 1))
-                biases.append(biasesInLayer)
-        self.weights = copy.deepcopy(weights)
-        self.biases = copy.deepcopy(biases)
+                ba.append(biasesInLayer)
+        return [wa, ba]
 
-    @staticmethod
-    def mutate(nn, rate, change):
+    def mutate(self, rate, change):
         # Mutate weights and biases based on a given mutation rate
-        we = copy.deepcopy(nn.weights)
-        ba = copy.deepcopy(nn.biases)
+        we = copy.deepcopy(self.weights)
+        ba = copy.deepcopy(self.biases)
         parameters = [we, ba]
         for parameter in range(len(parameters)):
             for layer in range(len(parameters[parameter])):
@@ -53,18 +44,24 @@ class NeuralNetwork:
                     if percent < rate:
                         # Randomly change the value if the mutation rate allows
                         changeValue = random.uniform(-change, change)
-                        paramValue = parameters[parameter][layer][value] + changeValue
-                        if abs(paramValue) > 1:
-                            parameters[parameter][layer][value] = sign(paramValue)
 
-        return NeuralNetwork.copyNN([nn.layers, parameters[0], parameters[1]])
+                        parameters[parameter][layer][value] += changeValue
+                        if abs(parameters[parameter][layer][value]) > 1:
+                            parameters[parameter][layer][value] = (
+                                        parameters[parameter][layer][value] / abs(parameters[parameter][layer][value]))
+
+        return parameters
 
     @staticmethod
-    def copyNN(nn):
-        copiedNetwork = NeuralNetwork(nn[0])
-        copiedNetwork.weights = nn[1]
-        copiedNetwork.biases = nn[2]
+    def copyNN(network):
+        copiedNetwork = NeuralNetwork(network[0])
+        copiedNetwork.weights = network[1]
+        copiedNetwork.biases = network[2]
         return copiedNetwork
+
+    def values(self, val):
+        self.weights = val[0]
+        self.biases = val[1]
 
     # Activation functions are provided as static methods for simplicity
     @staticmethod
@@ -82,20 +79,12 @@ class NeuralNetwork:
     @staticmethod
     def Sigmoid(value):
         # Sigmoid function to squash values between 0 and 1
-        return 1 / (1 + (2.718 ** (-value)))
+        return 1 / (1 + (2.718 ** (-abs(value))))
 
     @staticmethod
     def Tanh(value):
         # Hyperbolic tangent function to map values between -1 and 1
         return math.tanh(value)
-
-    @staticmethod
-    def Step(value):
-        # either -1 or 1
-        if value > 0:
-            return 1
-        else:
-            return -1
 
     def run(self, inputs, activation):
         # current input layer being ran
@@ -118,13 +107,3 @@ class NeuralNetwork:
             currentInput = currentOutput
         # once all layers have been iterated through
         return currentInput
-
-    @staticmethod
-    def convert_to_bool(outputs):
-        bool_outputs = []
-        for output in outputs:
-            if output > 0:
-                bool_outputs.append(True)
-            else:
-                bool_outputs.append(False)
-        return bool_outputs
